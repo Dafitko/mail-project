@@ -1,0 +1,47 @@
+textarea {
+    min-height: 400px;
+}
+
+.email-box {
+    border: 1px solid #007bff; /* Modrý border podobný btn-outline-primary */
+    padding: 12px 15px;
+    margin: 8px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+.email-box:hover {
+    background-color: #f1f3f5;
+    border-color: #0056b3;
+}
+
+.email-box.read {
+    background-color: #e9ecef; /* Sivé pozadie pre prečítané */
+    border-color: #ced4da;     /* Svetlejší border pre prečítané */
+}
+
+.email-box.unread {
+    background-color: #ffffff; /* Biele pozadie pre neprečítané */
+    font-weight: bold;
+}
+
+.email-sender {
+    flex: 1;
+    font-weight: 600;
+}
+
+.email-subject {
+    flex: 2;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.email-timestamp {
+    color: #6c757d;
+    font-size: 0.9em;
+    text-align: right;
+}
