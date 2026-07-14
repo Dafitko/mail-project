@@ -45,3 +45,39 @@ textarea {
     font-size: 0.9em;
     text-align: right;
 }
+
+.email-detail {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 25px;
+    margin-top: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.email-header h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 15px;
+}
+
+.email-meta {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #495057;
+}
+
+.email-meta strong {
+    color: #212529;
+}
+
+.email-body-content {
+    white-space: pre-wrap;
+    font-size: 1rem;
+    color: #212529;
+    line-height: 1.6;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-family: inherit;
+}
