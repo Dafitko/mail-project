@@ -1,15 +1,16 @@
+import random
 from django.core.management.base import BaseCommand
 from mail.models import User, Email
 
 class Command(BaseCommand):
-    help = 'Seeds the database with funny Harry Potter dummy data'
+    help = 'Seeds the database with 80+ funny Harry Potter dummy data emails'
 
     def handle(self, *args, **options):
         self.stdout.write("Deleting all existing emails and users...")
         Email.objects.all().delete()
         User.objects.all().delete()
 
-        self.stdout.write("Creating Harry Potter universe users (password for all: password123)...")
+        self.stdout.write("Creating Harry Potter universe users (password for all: test)...")
         users_info = {
             "harry@hogwarts.edu": "Harry Potter",
             "ron@hogwarts.edu": "Ron Weasley",
@@ -21,7 +22,7 @@ class Command(BaseCommand):
 
         users = {}
         for email, name in users_info.items():
-            user = User.objects.create_user(username=email, email=email, password="password123")
+            user = User.objects.create_user(username=email, email=email, password="test")
             user.save()
             users[email] = user
             self.stdout.write(f"  Created user: {name} ({email})")
@@ -59,7 +60,7 @@ class Command(BaseCommand):
                     email_rec.recipients.add(rec)
                 email_rec.save()
 
-        self.stdout.write("Populating magical emails...")
+        self.stdout.write("Populating hand-crafted magical emails...")
 
         # 1. Ron -> Harry
         create_email(
@@ -69,7 +70,7 @@ class Command(BaseCommand):
             read_for_recipients=False
         )
 
-        # 2. Hermione -> Ron (and CC Harry, which in this model means sending to both)
+        # 2. Hermione -> Ron & Harry
         create_email(
             "hermione@hogwarts.edu", ["ron@hogwarts.edu", "harry@hogwarts.edu"],
             "IT IS LEVI-O-SA",
@@ -175,4 +176,95 @@ class Command(BaseCommand):
             read_for_recipients=False
         )
 
-        self.stdout.write(self.style.SUCCESS("Database seeded successfully with Harry Potter universe data!"))
+        self.stdout.write("Generating 65 additional randomized magical emails...")
+        
+        topics = [
+            {
+                "subject": "Missing Cauldron",
+                "body": "Has anyone seen my pewter cauldron? I left it near the Herbology greenhouse. If Neville took it again, I'm going to turn his shoes into teacups.",
+            },
+            {
+                "subject": "Bertie Bott's Beans Warning",
+                "body": "Do NOT eat the yellow ones from the new batch in Hogsmeade. I thought it was banana, but it was earwax combined with troll booger. You have been warned.",
+            },
+            {
+                "subject": "Quidditch Match rescheduled",
+                "body": "The match against Ravenclaw is moved to Friday morning due to heavy rain. Wood says we must practice flying blindfolded to prepare for the fog.",
+            },
+            {
+                "subject": "Chocolate Frog trading",
+                "body": "I have three Albus Dumbledore cards and two Merlin cards. I am willing to trade them for a single Gilderoy Lockhart card to complete my collection.",
+            },
+            {
+                "subject": "Gringotts Account Update",
+                "body": "Your vault has been assessed. Your balance remains at 3 galleons and 14 sickles. Please note that keeping baby dragons in your vault is strictly prohibited by Gringotts policy.",
+            },
+            {
+                "subject": "Howler Warning",
+                "body": "My mother is threatening to send a Howler because of my recent grade in Divination. If you hear screaming in the Great Hall tomorrow morning, please pretend you don't know me.",
+            },
+            {
+                "subject": "Forbidden Forest warning",
+                "body": "This is a reminder that the Forbidden Forest is off-limits to all students who do not wish to suffer a highly painful death. And yes, Hagrid, this includes your pets.",
+            },
+            {
+                "subject": "Found: Invisibility Cloak?",
+                "body": "I found a piece of empty air in the common room near the fireplace. It feels like silk but I can't see it at all. Please claim it if you lost your invisibility.",
+            },
+            {
+                "subject": "Time-Turner scheduling conflict",
+                "body": "I accidentally attended two classes at the same time and met myself in the hallway. We agreed to disagree on the transfiguration homework. It was quite bizarre.",
+            },
+            {
+                "subject": "Marauder's Map password",
+                "body": "I solemnly swear that I am up to no good. Please remember to manage your mischief once you are done reading your messages.",
+            },
+            {
+                "subject": "Snape's stare",
+                "body": "He looked at me for 10 seconds today without blinking during the lecture. I think he was trying to read my mind, or he was just really upset about my potion exploding.",
+            },
+            {
+                "subject": "Daily Prophet subscription renewal",
+                "body": "Your subscription is about to expire. Send 5 sickles via owl to renew. This week's headline: Dumbledore's new hat - fashion statement or dark magical artifact?",
+            },
+            {
+                "subject": "Weasley Sweaters order",
+                "body": "Mum is asking what color you want for this year's Christmas sweater. Choices are maroon, maroon, or slightly darker maroon. Please let me know ASAP.",
+            },
+            {
+                "subject": "Floo Network maintenance",
+                "body": "Please be advised that the Floo Network connections in the Gryffindor common room fireplace will be down for maintenance this Tuesday. Use the stairs.",
+            },
+            {
+                "subject": "Mandragora handling rules",
+                "body": "Earmuffs are mandatory. Neville forgot his earmuffs today and fainted immediately. Professor Sprout is not pleased. Please read the manual.",
+            }
+        ]
+
+        users_list = list(users_info.keys())
+        
+        # Set a seed to make it reproducible
+        random.seed(42)
+        
+        for i in range(1, 66):
+            sender_email = random.choice(users_list)
+            recipient_candidates = [u for u in users_list if u != sender_email]
+            recipient_email = random.choice(recipient_candidates)
+            
+            topic = random.choice(topics)
+            subject = f"{topic['subject']} (Msg #{i})"
+            body = f"Dear {users_info[recipient_email]},\n\n{topic['body']}\n\nSincerely,\n{users_info[sender_email]}"
+            
+            # Assign random read/unread/archived states
+            read_state = random.choice([True, False])
+            archived_state = random.choice([True, False]) if read_state else False
+            
+            create_email(
+                sender_email, [recipient_email],
+                subject, body,
+                read_for_recipients=read_state,
+                archived_for_recipients=archived_state
+            )
+
+        total_emails = Email.objects.count()
+        self.stdout.write(self.style.SUCCESS(f"Database seeded successfully with {total_emails} magical email records!"))
